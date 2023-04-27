@@ -1,0 +1,38 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  /* width: 700px; */
+}
+
+.row {
+  display: flex;
+}
+
+.button {
+  width: 40px;
+  height: 40px;
+  margin: 7px 5px;
+  color: aliceblue;
+  background-color: black;
+}
+
+.button.button15{
+  width: 60px;
+}
+
+.button.button2{
+  width: 90px;
+}
+
+.button.button3{
+  width: 140px;
+}
+
+.button.button4{
+  width: 300px;
+}
+
+.button.active {
+  color: black;
+  background-color: aquamarine;
+}
