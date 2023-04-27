@@ -82,6 +82,7 @@ function createButton(buttonObj) {
   } else {
     button.classList = "button";
   }
+  button.classList.add(buttonObj.code);
   let main = document.createElement("span");
   main.textContent = buttonObj.main;
   if (buttonObj.alt != undefined) {
@@ -111,6 +112,8 @@ document.body.append(wrapper);
 
 /* Listeners */
 
+/* Click listeners */
+
 wrapper.addEventListener("mousedown", (event) => {
   let inputWindow = document.querySelector("textarea");
   let target = event.target.closest(".button")
@@ -118,7 +121,7 @@ wrapper.addEventListener("mousedown", (event) => {
     inputWindow.focus();
   }
   if (target) {
-    target.classList.toggle("active");
+    target.classList.add("active");
     event.preventDefault();
   };
 });
@@ -136,26 +139,49 @@ wrapper.addEventListener("mouseup", (event) => {
         inputWindow.value = prevText + target.children[0].textContent + postText;
       }
       inputWindow.setSelectionRange(prevText.length+1, prevText.length+1);
-      target.classList.toggle("active");
+      target.classList.remove("active");
     } else { // for anything but letters
       if (inputWindow.selectionEnd == inputWindow.selectionStart) { // w.o. seletion
         if (target.children[0].textContent == "Backspace") {
           inputWindow.value = prevText.slice(0,prevText.length-1) + postText;
           inputWindow.setSelectionRange(prevText.length-1, prevText.length-1);
-          target.classList.toggle("active");
+          target.classList.toremoveggle("active");
         }
         if (target.children[0].textContent == "Delete") {
           inputWindow.value = prevText + postText.slice(1);
           inputWindow.setSelectionRange(prevText.length, prevText.length);
-          target.classList.toggle("active");
+          target.classList.remove("active");
         }
       } else { // with selection
         if (target.children[0].textContent == "Delete" || target.children[0].textContent == "Backspace") {
           inputWindow.value = prevText + postText;
           inputWindow.setSelectionRange(prevText.length, prevText.length);
-          target.classList.toggle("active");
+          target.classList.remove("active");
         }
       }
     }
   }
+});
+
+/* Key press listeners */
+
+function findFromListByKeyCode(keyCode) {
+  let catchedKey = false;
+  for (let key of keyboardList) {
+    if (key.code == keyCode) {
+      catchedKey = true;
+      return document.querySelector(`.${key.code}`);
+    }
+  }
+  if (!catchedKey) {
+    return null;
+  }
+}
+document.addEventListener("keydown", (event) => {
+  let button = findFromListByKeyCode(event.code);
+  button.classList.add("active");
+});
+document.addEventListener("keyup", (event) => {
+  let button = findFromListByKeyCode(event.code);
+  button.classList.remove("active");
 });

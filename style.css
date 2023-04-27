@@ -1,7 +1,14 @@
+textarea {
+  box-sizing: border-box;
+  margin: 0 0 0 10px;
+  width: 730px;
+  resize: vertical;
+}
+
 .wrapper {
   display: flex;
   flex-direction: column;
-  /* width: 700px; */
+  width: 750px;
 }
 
 .row {
