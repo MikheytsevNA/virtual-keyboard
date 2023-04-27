@@ -2,6 +2,7 @@ textarea {
   box-sizing: border-box;
   margin: 0 0 0 10px;
   width: 730px;
+  height: 100px;
   resize: vertical;
 }
 
@@ -16,11 +17,17 @@ textarea {
 }
 
 .button {
+  display: flex;
   width: 40px;
   height: 40px;
   margin: 7px 5px;
   color: aliceblue;
+  font-size: 14px;
   background-color: black;
+  cursor: pointer;
+  transition: 200ms;
+  justify-content: center;
+  align-items: center;
 }
 
 .button.button15{

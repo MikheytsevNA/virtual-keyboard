@@ -66,6 +66,9 @@ const keyboardList = [
   {main: "\u{2193}", row: 5, code: "ArrowDown"},
   {main: "\u{2192}", row: 5, code: "ArrowRight"}
 ]
+const tabSpaceLength = 4;
+var shiftMode = false;
+var tabMode = false;
 
 function createButton(buttonObj) {
   let button = document.createElement("div");
@@ -133,32 +136,72 @@ wrapper.addEventListener("mouseup", (event) => {
     let prevText = inputWindow.value.slice(0, inputWindow.selectionStart);
     let postText = inputWindow.value.slice(inputWindow.selectionEnd);
     if (target.children.length != 1 || target.children[0].textContent == " ") { // for letters and spaces
-      if (target.children[1]) { // for letters
-        inputWindow.value = prevText + target.children[1].textContent + postText;
-      } else { // for spaces
-        inputWindow.value = prevText + target.children[0].textContent + postText;
+      if (!shiftMode) { // if shift key is NOT pressed 
+        if (!tabMode || !target.classList[1].includes("Key")) {
+          if (target.children[1]) { // if shift key is NOT pressed AND tab key is NOT pressed
+            inputWindow.value = prevText + target.children[1].textContent + postText; // for letters
+          } else {
+            inputWindow.value = prevText + target.children[0].textContent + postText;  // for spaces
+          }
+        } else {
+          inputWindow.value = prevText + target.children[0].textContent + postText;
+        }
+      } else { // if shift key IS pressed 
+        if (!tabMode || !target.classList[1].includes("Key")) { // if shift key IS pressed AND tab key is NOT pressed
+          inputWindow.value = prevText + target.children[0].textContent + postText; // for any
+        } else {
+          if (target.children[1]) { // if shift key IS pressed AND tab key IS pressed
+            inputWindow.value = prevText + target.children[1].textContent + postText; // for letters
+          } else {
+            inputWindow.value = prevText + target.children[0].textContent + postText; // for spaces
+          }
+        }
       }
       inputWindow.setSelectionRange(prevText.length+1, prevText.length+1);
       target.classList.remove("active");
     } else { // for anything but letters
-      if (inputWindow.selectionEnd == inputWindow.selectionStart) { // w.o. seletion
-        if (target.children[0].textContent == "Backspace") {
-          inputWindow.value = prevText.slice(0,prevText.length-1) + postText;
-          inputWindow.setSelectionRange(prevText.length-1, prevText.length-1);
-          target.classList.toremoveggle("active");
-        }
-        if (target.children[0].textContent == "Delete") {
-          inputWindow.value = prevText + postText.slice(1);
-          inputWindow.setSelectionRange(prevText.length, prevText.length);
-          target.classList.remove("active");
-        }
-      } else { // with selection
-        if (target.children[0].textContent == "Delete" || target.children[0].textContent == "Backspace") {
+      if (target.children[0].textContent == "Delete" || target.children[0].textContent == "Backspace") {
+        if (inputWindow.selectionEnd == inputWindow.selectionStart) {
+          if (target.children[0].textContent == "Backspace") {
+            inputWindow.value = prevText.slice(0,prevText.length-1) + postText;
+            inputWindow.setSelectionRange(prevText.length-1, prevText.length-1);
+            
+          }
+          if (target.children[0].textContent == "Delete") {
+            inputWindow.value = prevText + postText.slice(1);
+            inputWindow.setSelectionRange(prevText.length, prevText.length);
+          }
+        } else {
           inputWindow.value = prevText + postText;
           inputWindow.setSelectionRange(prevText.length, prevText.length);
+        }
+      } else if (target.children[0].textContent == "Tab") {
+        let tabSpace = "";
+        for (let j = 0; j < tabSpaceLength; j++) {
+          tabSpace += " ";
+        }
+        inputWindow.value = prevText + tabSpace + postText;
+        inputWindow.setSelectionRange(prevText.length + tabSpaceLength , prevText.length + tabSpaceLength);
+      } else if (target.children[0].textContent == "Enter") {
+        inputWindow.value = prevText + '\n' + postText;
+        inputWindow.setSelectionRange(prevText.length + 1 , prevText.length + 1);
+      } else if (target.children[0].textContent == "Shift") {
+        let shiftLeft = document.querySelector(".ShiftLeft");
+        let shiftRight = document.querySelector(".ShiftRight");
+        if (shiftMode) {
+          shiftLeft.classList.remove("active");
+          shiftRight.classList.remove("active");
+        }
+        shiftMode = !shiftMode;
+        return;
+      } else if (target.children[0].textContent == "CapsLock") {
+        if (tabMode) {
           target.classList.remove("active");
         }
+        tabMode = !tabMode;
+        return;
       }
+      target.classList.remove("active");
     }
   }
 });
@@ -179,9 +222,13 @@ function findFromListByKeyCode(keyCode) {
 }
 document.addEventListener("keydown", (event) => {
   let button = findFromListByKeyCode(event.code);
-  button.classList.add("active");
+  if (button) {
+    button.classList.add("active");
+  }
 });
 document.addEventListener("keyup", (event) => {
   let button = findFromListByKeyCode(event.code);
-  button.classList.remove("active");
+  if (button) {
+    button.classList.remove("active");
+  }
 });
