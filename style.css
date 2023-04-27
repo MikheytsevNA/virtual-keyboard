@@ -1,6 +1,12 @@
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 textarea {
   box-sizing: border-box;
-  margin: 0 0 0 10px;
+  margin: 0;
   width: 730px;
   height: 100px;
   resize: vertical;
@@ -17,7 +23,7 @@ textarea {
 }
 
 .button {
-  display: flex;
+  box-sizing: border-box;
   width: 40px;
   height: 40px;
   margin: 7px 5px;
@@ -25,9 +31,11 @@ textarea {
   font-size: 14px;
   background-color: black;
   cursor: pointer;
-  transition: 200ms;
-  justify-content: center;
-  align-items: center;
+  transition: 100ms;
+}
+
+.button:hover {
+  border: 3px #909090 solid;
 }
 
 .button.button15{
@@ -49,4 +57,23 @@ textarea {
 .button.active {
   color: black;
   background-color: aquamarine;
+  transition: 400ms;
+}
+
+.main {
+  position: relative;
+  top: 25%;
+  left: 15%;
+}
+
+.sub {
+  position: relative;
+  top: 0%;
+  left: 5%;
+}
+
+.info {
+  width: 400px;
+  text-align: center;
+  align-self: center;
 }
