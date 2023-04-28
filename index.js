@@ -220,12 +220,16 @@ inputWindow.focus();
 document.body.append(wrapper);
 let textDiv = document.createElement("div");
 textDiv.classList = "info";
-textDiv.textContent = "Клавиатура создана в операционной системе Windows. Для переключения языка комбинация: левыe shift + alt"
+textDiv.textContent = "Keyboard for Windows OS. To toggle between eng and ru: left shift + alt"
 document.body.append(textDiv);
 
 /* Listeners */
 
 /* Click listeners */
+
+function mouseLeaveHandler (event) {
+  event.target.classList.remove("active");
+}
 
 function mousedownHandler(event) {
   let inputWindow = document.querySelector("textarea");
@@ -235,12 +239,13 @@ function mousedownHandler(event) {
   }
   if (target) {
     target.classList.add("active");
+    target.addEventListener("mouseleave", mouseLeaveHandler, {once: true});
     event.preventDefault();
   };
 }
 
 
-function mouseupHandler(event) {{
+function mouseupHandler(event) {
   let inputWindow = document.querySelector("textarea");
   let target = event.target.closest(".button");
   let prevText = inputWindow.value.slice(0, inputWindow.selectionStart);
@@ -322,12 +327,14 @@ function mouseupHandler(event) {{
           shiftRight.classList.remove("active");
         }
         shiftMode = !shiftMode;
+        target.removeEventListener("mouseleave", mouseLeaveHandler, {once: true});
         return;
       } else if (target.children[0].textContent == "CapsLock") {
         if (tabMode) {
           target.classList.remove("active");
         }
         tabMode = !tabMode;
+        target.removeEventListener("mouseleave", mouseLeaveHandler, {once: true});
         return;
       } else if (target.children[0].textContent == "\u{2190}") {// arrow left
         if (shiftMode) { // arrow left white shift is pressed
@@ -503,8 +510,6 @@ function mouseupHandler(event) {{
       target.classList.remove("active");
     }
   }
-}
-
 }
 wrapper.addEventListener("mousedown", mousedownHandler);
 wrapper.addEventListener("mouseup", mouseupHandler);
