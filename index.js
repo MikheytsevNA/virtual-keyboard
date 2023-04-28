@@ -139,6 +139,28 @@ var shiftMode = false;
 var tabMode = false;
 var keyBoardLayout_EN = true; // English by default
 
+
+if (!localStorage.getItem("currentLanguage")) {
+  var keyBoardLayout_EN = true; // English by default
+  setStorage(keyBoardLayout_EN);
+} else {
+  keyBoardLayout_EN = getFromStorage("currentLanguage");
+  if (keyBoardLayout_EN == "false"){
+    keyBoardLayout_EN = false;
+  } else if (keyBoardLayout_EN == "true") {
+    keyBoardLayout_EN = true;
+  }
+}
+
+function getFromStorage(key) {
+  return localStorage.getItem(key);
+}
+
+function setStorage(isEnglish) {
+  localStorage.setItem("currentLanguage", isEnglish);
+}
+
+
 function createButton(buttonObj) {
   let button = document.createElement("div");
   if (buttonObj.width) {
@@ -188,6 +210,7 @@ function fillWrapeper(rowsInWrapper, keyboardList) {
 if (keyBoardLayout_EN) {
   var wrapper = fillWrapeper(rowsInWrapper, keyboardList_EN);
 } else {
+  console.log(321);
   var wrapper = fillWrapeper(rowsInWrapper, keyboardList_RU);
 }
 
@@ -220,9 +243,9 @@ function mousedownHandler(event) {
 function mouseupHandler(event) {{
   let inputWindow = document.querySelector("textarea");
   let target = event.target.closest(".button");
+  let prevText = inputWindow.value.slice(0, inputWindow.selectionStart);
+  let postText = inputWindow.value.slice(inputWindow.selectionEnd);
   if (target) {
-    let prevText = inputWindow.value.slice(0, inputWindow.selectionStart);
-    let postText = inputWindow.value.slice(inputWindow.selectionEnd);
     if ((target.children[0].textContent == "Ru")) {
       if (keyBoardLayout_EN) {
         wrapper.remove();
@@ -231,6 +254,7 @@ function mouseupHandler(event) {{
         wrapper.addEventListener("mousedown", mousedownHandler);
         wrapper.addEventListener("mouseup", mouseupHandler);
         keyBoardLayout_EN = !keyBoardLayout_EN;
+        setStorage(keyBoardLayout_EN);
       } else {
         wrapper.remove();
         wrapper = fillWrapeper(rowsInWrapper, keyboardList_EN);
@@ -238,6 +262,7 @@ function mouseupHandler(event) {{
         wrapper.addEventListener("mousedown", mousedownHandler);
         wrapper.addEventListener("mouseup", mouseupHandler);
         keyBoardLayout_EN = !keyBoardLayout_EN;
+        setStorage(keyBoardLayout_EN);
       }
     } else if (target.children.length != 1 || target.children[0].textContent == " ") { // for letters and spaces
       if (!shiftMode) { // if shift key is NOT pressed 
@@ -304,6 +329,176 @@ function mouseupHandler(event) {{
         }
         tabMode = !tabMode;
         return;
+      } else if (target.children[0].textContent == "\u{2190}") {// arrow left
+        if (shiftMode) { // arrow left white shift is pressed
+          if (inputWindow.selectionStart == inputWindow.selectionEnd) {
+            inputWindow.setSelectionRange(inputWindow.selectionStart - 1 , inputWindow.selectionEnd, "backward");
+          } else if (inputWindow.selectionDirection == "forward") {
+            inputWindow.setSelectionRange(inputWindow.selectionStart, inputWindow.selectionEnd -1);
+          } else if (inputWindow.selectionDirection == "backward") {
+            inputWindow.setSelectionRange(inputWindow.selectionStart - 1 , inputWindow.selectionEnd, "backward");
+          }
+        } else {
+          if (inputWindow.selectionEnd == inputWindow.selectionStart) {
+            inputWindow.setSelectionRange(inputWindow.selectionEnd - 1 , inputWindow.selectionEnd - 1);
+          } else {
+            inputWindow.setSelectionRange(inputWindow.selectionStart , inputWindow.selectionStart);
+          }
+        }
+      } else if (target.children[0].textContent == "\u{2192}") {// arrow right
+        if (shiftMode) { // arrow right white shift is pressed
+          if (inputWindow.selectionStart == inputWindow.selectionEnd) {
+            inputWindow.setSelectionRange(inputWindow.selectionStart , inputWindow.selectionEnd + 1, "forward");
+          } else if (inputWindow.selectionDirection == "forward") {
+            inputWindow.setSelectionRange(inputWindow.selectionStart, inputWindow.selectionEnd + 1);
+          } else if (inputWindow.selectionDirection == "backward") {
+            inputWindow.setSelectionRange(inputWindow.selectionStart + 1 , inputWindow.selectionEnd, "backward");
+          }
+        } else {
+          if (inputWindow.selectionEnd == inputWindow.selectionStart) {
+            inputWindow.setSelectionRange(inputWindow.selectionEnd + 1 , inputWindow.selectionEnd + 1);
+          } else {
+            inputWindow.setSelectionRange(inputWindow.selectionEnd , inputWindow.selectionEnd);
+          }
+        }
+      } else if (target.children[0].textContent == "\u{2193}") {// arrow down
+        if (shiftMode) { // arrow down white shift IS pressed
+          if (inputWindow.selectionEnd == inputWindow.selectionStart) {
+            let toNextLine = postText.indexOf("\n");
+            let toPrevLine = prevText.length-1 - prevText.lastIndexOf("\n");
+            let toNextNextLine = postText.slice(toNextLine+1).indexOf("\n");
+            if (toNextLine == -1) {
+              toNextLine = inputWindow.value.length - inputWindow.selectionEnd;
+            }
+            if (toNextNextLine == -1) {
+              toNextNextLine = inputWindow.value.length - prevText.length - toNextLine;
+            }
+            if (toPrevLine > toNextNextLine) {
+              inputWindow.setSelectionRange(inputWindow.selectionStart, prevText.length + toNextLine + toNextNextLine);
+              postText = inputWindow.value.slice(inputWindow.selectionEnd);
+            } else {
+              inputWindow.setSelectionRange(inputWindow.selectionStart, prevText.length + toNextLine + toPrevLine +1);
+              postText = inputWindow.value.slice(inputWindow.selectionEnd);
+            }
+          } else {
+            let toNextLine = postText.indexOf("\n");
+            let toPrevLine = prevText.length-1 - prevText.lastIndexOf("\n");
+            let toNextNextLine = postText.slice(toNextLine+1).indexOf("\n");
+            if (toNextLine == -1) {
+              toNextLine = inputWindow.value.length - inputWindow.selectionEnd;
+            }
+            if (toNextNextLine == -1) {
+              toNextNextLine = inputWindow.value.length - inputWindow.selectionEnd - toNextLine-1;
+            }
+            if (inputWindow.selectionDirection == "backward") {
+              if (toPrevLine >= toNextNextLine) {
+                inputWindow.setSelectionRange(inputWindow.selectionEnd, inputWindow.selectionEnd + toNextLine + toNextNextLine+1);
+              } else {
+                inputWindow.setSelectionRange(inputWindow.selectionEnd, inputWindow.selectionEnd + toNextLine + toPrevLine +1);
+              }
+            } else {
+              if (toPrevLine >= toNextNextLine) {
+                inputWindow.setSelectionRange(inputWindow.selectionStart, inputWindow.selectionEnd + toNextLine + toNextNextLine+1);
+              } else {
+                inputWindow.setSelectionRange(inputWindow.selectionStart, inputWindow.selectionEnd + toNextLine + toPrevLine +1);
+              }
+            }
+          }
+        } else { // arrow down white shift is NOT pressed
+          if (inputWindow.selectionEnd == inputWindow.selectionStart) {
+            let toNextLine = postText.indexOf("\n");
+            let toPrevLine = prevText.length-1 - prevText.lastIndexOf("\n");
+            let toNextNextLine = postText.slice(toNextLine+1).indexOf("\n");
+            if (toNextLine == -1) {
+              toNextLine = inputWindow.value.length - inputWindow.selectionEnd;
+            }
+            if (toNextNextLine == -1) {
+              toNextNextLine = inputWindow.value.length - prevText.length - toNextLine;
+            }
+            if (toPrevLine > toNextNextLine) {
+              inputWindow.setSelectionRange(prevText.length + toNextLine + toNextNextLine, prevText.length + toNextLine + toNextNextLine);
+            } else {
+              inputWindow.setSelectionRange(prevText.length + toNextLine + toPrevLine +1, prevText.length + toNextLine + toPrevLine +1);
+            }
+          } else {
+            let toNextLine = postText.indexOf("\n");
+            let toPrevLine = prevText.length-1 - prevText.lastIndexOf("\n");
+            let toNextNextLine = postText.slice(toNextLine+1).indexOf("\n");
+  
+            if (toNextNextLine == -1) {
+              toNextNextLine = inputWindow.value.length - inputWindow.selectionEnd - toNextLine-1;
+            }   
+            if (toPrevLine >= toNextNextLine) {
+              inputWindow.setSelectionRange(inputWindow.selectionEnd + toNextLine + toNextNextLine+1, inputWindow.selectionEnd + toNextLine + toNextNextLine+1);
+            } else {
+              inputWindow.setSelectionRange(inputWindow.selectionEnd + toNextLine + toPrevLine +1, inputWindow.selectionEnd + toNextLine + toPrevLine +1);
+            }
+          }
+        }
+      } else if (target.children[0].textContent == "\u{2191}") {// arrow up
+        if (shiftMode) { // arrow down white shift IS pressed
+          let toNextLine = postText.indexOf("\n");
+          let toPrevLine = prevText.length-1 - prevText.lastIndexOf("\n");
+          let toPrevPrevLine = prevText.slice(0,prevText.length-1-toPrevLine).lastIndexOf ("\n");
+          if (toNextLine == -1) {
+            toNextLine = inputWindow.value.length - inputWindow.selectionEnd;
+          }
+          if (inputWindow.selectionDirection == "forward") {
+            if (prevText.lastIndexOf("\n") == -1) {
+              inputWindow.setSelectionRange(0,inputWindow.selectionStart);
+            } else if (toPrevPrevLine == -1) {
+              if (toPrevLine < inputWindow.selectionStart-toPrevLine) {
+                inputWindow.setSelectionRange(toPrevLine, inputWindow.selectionStart);
+              } else {
+                inputWindow.setSelectionRange(prevText.lastIndexOf("\n"), inputWindow.selectionStart);
+              }
+            } else {
+              if (toPrevLine < prevText.lastIndexOf("\n") - toPrevPrevLine) {
+                inputWindow.setSelectionRange(inputWindow.selectionStart-prevText.lastIndexOf("\n")+toPrevPrevLine, inputWindow.selectionStart);
+              } else {
+                inputWindow.setSelectionRange(prevText.lastIndexOf("\n"), inputWindow.selectionStart);
+              }
+            }
+          } else {
+            if (prevText.lastIndexOf("\n") == -1) {
+              inputWindow.setSelectionRange(0,inputWindow.selectionEnd);
+            } else if (toPrevPrevLine == -1) {
+              if (toPrevLine < inputWindow.selectionStart-toPrevLine) {
+                inputWindow.setSelectionRange(toPrevLine, inputWindow.selectionEnd);
+              } else {
+                inputWindow.setSelectionRange(prevText.lastIndexOf("\n"), inputWindow.selectionEnd);
+              }
+            } else {
+              if (toPrevLine < prevText.lastIndexOf("\n") - toPrevPrevLine) {
+                inputWindow.setSelectionRange(inputWindow.selectionStart-prevText.lastIndexOf("\n")+toPrevPrevLine, inputWindow.selectionEnd);
+              } else {
+                inputWindow.setSelectionRange(prevText.lastIndexOf("\n"), inputWindow.selectionEnd);
+              }
+            }
+          }
+        } else { // arrow down white shift is NOT pressed
+          let toNextLine = postText.indexOf("\n");
+          let toPrevLine = prevText.length-1 - prevText.lastIndexOf("\n");
+          let toPrevPrevLine = prevText.slice(0,prevText.length-1-toPrevLine).lastIndexOf ("\n");
+          if (toNextLine == -1) {
+            toNextLine = inputWindow.value.length - inputWindow.selectionEnd;
+          }
+          if (prevText.lastIndexOf("\n") == -1) {
+            inputWindow.setSelectionRange(0,0);
+          } else if (toPrevPrevLine == -1) {
+            if (toPrevLine < inputWindow.selectionStart-toPrevLine) {
+              inputWindow.setSelectionRange(toPrevLine, toPrevLine);
+            } else {
+              inputWindow.setSelectionRange(prevText.lastIndexOf("\n"), prevText.lastIndexOf("\n"));
+            }
+          } else {
+            if (toPrevLine < prevText.lastIndexOf("\n") - toPrevPrevLine) {
+              inputWindow.setSelectionRange(inputWindow.selectionStart-prevText.lastIndexOf("\n")+toPrevPrevLine, inputWindow.selectionStart-prevText.lastIndexOf("\n")+toPrevPrevLine);
+            } else {
+              inputWindow.setSelectionRange(prevText.lastIndexOf("\n"), prevText.lastIndexOf("\n"));
+            }
+          }
+        }
       }
       target.classList.remove("active");
     }
@@ -337,6 +532,7 @@ document.addEventListener("keydown", (event) => {
       wrapper.addEventListener("mousedown", mousedownHandler);
       wrapper.addEventListener("mouseup", mouseupHandler);
       keyBoardLayout_EN = !keyBoardLayout_EN;
+      setStorage(keyBoardLayout_EN);
     } else {
       wrapper.remove();
       wrapper = fillWrapeper(rowsInWrapper, keyboardList_EN);
@@ -344,16 +540,30 @@ document.addEventListener("keydown", (event) => {
       wrapper.addEventListener("mousedown", mousedownHandler);
       wrapper.addEventListener("mouseup", mouseupHandler);
       keyBoardLayout_EN = !keyBoardLayout_EN;
+      setStorage(keyBoardLayout_EN);
     }
   }
   let button = findFromListByKeyCode(event.code);
   if (button) {
     button.classList.add("active");
   }
+  if (event.code == "CapsLock") {
+    var target = document.querySelector(".CapsLock");
+    if (tabMode) {
+      target.classList.remove("active");
+    }
+    tabMode = !tabMode;
+    return;
+  }
+  if (event.code == "ShiftLeft" || event.code == "ShiftRight") {
+    shiftMode = false;
+  }
 });
 document.addEventListener("keyup", (event) => {
   let button = findFromListByKeyCode(event.code);
   if (button) {
-    button.classList.remove("active");
+    if (event.code != "CapsLock") {
+      button.classList.remove("active");
+    }
   }
 });
