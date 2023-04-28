@@ -137,6 +137,7 @@ const keyboardList_RU = [
 const tabSpaceLength = 4;
 var shiftMode = false;
 var tabMode = false;
+var ctrlMode = false;
 var keyBoardLayout_EN = true; // English by default
 
 
@@ -329,6 +330,16 @@ function mouseupHandler(event) {
         shiftMode = !shiftMode;
         target.removeEventListener("mouseleave", mouseLeaveHandler, {once: true});
         return;
+      } else if (target.children[0].textContent == "Control") {
+        let controlLeft = document.querySelector(".ControlLeft");
+        let controlRight = document.querySelector(".ControlRight");
+        if (ctrlMode) {
+          controlLeft.classList.remove("active");
+          controlRight.classList.remove("active");
+        }
+        ctrlMode = !ctrlMode;
+        target.removeEventListener("mouseleave", mouseLeaveHandler, {once: true});
+        return;
       } else if (target.children[0].textContent == "CapsLock") {
         if (tabMode) {
           target.classList.remove("active");
@@ -338,22 +349,94 @@ function mouseupHandler(event) {
         return;
       } else if (target.children[0].textContent == "\u{2190}") {// arrow left
         if (shiftMode) { // arrow left white shift is pressed
-          if (inputWindow.selectionStart == inputWindow.selectionEnd) {
-            inputWindow.setSelectionRange(inputWindow.selectionStart - 1 , inputWindow.selectionEnd, "backward");
-          } else if (inputWindow.selectionDirection == "forward") {
-            inputWindow.setSelectionRange(inputWindow.selectionStart, inputWindow.selectionEnd -1);
-          } else if (inputWindow.selectionDirection == "backward") {
-            inputWindow.setSelectionRange(inputWindow.selectionStart - 1 , inputWindow.selectionEnd, "backward");
+          if (inputWindow.selectionStart == 0) {
+            return;
+          }
+          if (ctrlMode) {
+            let prevLineIndex = prevText.lastIndexOf("\n");
+            if (prevLineIndex+1 == inputWindow.selectionStart) {
+              if (prevLineIndex == -1) {
+                inputWindow.setSelectionRange(0, 0);
+              } else {
+                inputWindow.setSelectionRange(prevLineIndex, prevLineIndex);
+              }
+              return;
+            }
+            if (inputWindow.value[inputWindow.selectionStart-1] == " " && inputWindow.selectionDirection == "backward") {
+              var prevSpaceIndex = prevText.slice(0,prevText.length-2).lastIndexOf(" ");
+            } else if (inputWindow.value[inputWindow.selectionStart-1] == " " && inputWindow.selectionEnd == inputWindow.selectionStart) {
+              var prevSpaceIndex = prevText.slice(0,prevText.length-2).lastIndexOf(" ");
+            } else {
+              var prevSpaceIndex = prevText.lastIndexOf(" ");
+            }
+            if (prevSpaceIndex == -1) {
+              prevSpaceIndex = 0;
+            } else {
+              prevSpaceIndex++
+            }
+            if (prevLineIndex > prevSpaceIndex) {
+              inputWindow.setSelectionRange(prevLineIndex + 1, prevLineIndex + 1);
+              return;
+            }
+            let toPrevSpace = inputWindow.selectionStart - prevSpaceIndex;
+            if (inputWindow.selectionStart == inputWindow.selectionEnd) {
+              inputWindow.setSelectionRange(inputWindow.selectionStart - toPrevSpace , inputWindow.selectionEnd, "backward");
+            } else if (inputWindow.selectionDirection == "forward") {
+              inputWindow.setSelectionRange(inputWindow.selectionStart - toPrevSpace, inputWindow.selectionStart, "backward");
+            } else if (inputWindow.selectionDirection == "backward") {
+              inputWindow.setSelectionRange(inputWindow.selectionStart - toPrevSpace , inputWindow.selectionEnd, "backward");
+            }
+          } else {
+            if (inputWindow.selectionStart == inputWindow.selectionEnd) {
+              inputWindow.setSelectionRange(inputWindow.selectionStart - 1 , inputWindow.selectionEnd, "backward");
+            } else if (inputWindow.selectionDirection == "forward") {
+              inputWindow.setSelectionRange(inputWindow.selectionStart, inputWindow.selectionEnd -1);
+            } else if (inputWindow.selectionDirection == "backward") {
+              inputWindow.setSelectionRange(inputWindow.selectionStart - 1 , inputWindow.selectionEnd, "backward");
+            }
           }
         } else {
-          if (inputWindow.selectionEnd == inputWindow.selectionStart) {
-            inputWindow.setSelectionRange(inputWindow.selectionEnd - 1 , inputWindow.selectionEnd - 1);
+          if (ctrlMode) {
+            let prevLineIndex = prevText.lastIndexOf("\n");
+            if (prevLineIndex+1 == inputWindow.selectionStart) {
+              if (prevLineIndex == -1) {
+                inputWindow.setSelectionRange(0, 0);
+              } else {
+                inputWindow.setSelectionRange(prevLineIndex, prevLineIndex);
+              }
+              return;
+            }
+            if (inputWindow.value[inputWindow.selectionStart-1] == " " && inputWindow.selectionDirection == "backward") {
+              var prevSpaceIndex = prevText.slice(0,prevText.length-2).lastIndexOf(" ");
+            } else if (inputWindow.value[inputWindow.selectionStart-1] == " " && inputWindow.selectionEnd == inputWindow.selectionStart) {
+              var prevSpaceIndex = prevText.slice(0,prevText.length-2).lastIndexOf(" ");
+            } else {
+              var prevSpaceIndex = prevText.lastIndexOf(" ");
+            }
+            if (prevSpaceIndex == -1) {
+              prevSpaceIndex = 0;
+            } else {
+              prevSpaceIndex++
+            }
+            if (prevLineIndex > prevSpaceIndex) {
+              inputWindow.setSelectionRange(prevLineIndex + 1, prevLineIndex + 1);
+              return;
+            }
+            let toPrevSpace = inputWindow.selectionStart - prevSpaceIndex;
+            inputWindow.setSelectionRange(inputWindow.selectionStart - toPrevSpace , inputWindow.selectionStart - toPrevSpace);
           } else {
-            inputWindow.setSelectionRange(inputWindow.selectionStart , inputWindow.selectionStart);
+            if (inputWindow.selectionEnd == inputWindow.selectionStart) {
+              inputWindow.setSelectionRange(inputWindow.selectionEnd - 1 , inputWindow.selectionEnd - 1);
+            } else {
+              inputWindow.setSelectionRange(inputWindow.selectionStart , inputWindow.selectionStart);
+            }
           }
         }
       } else if (target.children[0].textContent == "\u{2192}") {// arrow right
         if (shiftMode) { // arrow right white shift is pressed
+          if (inputWindow.selectionEnd == inputWindow.value.length) {
+            return;
+          }
           if (inputWindow.selectionStart == inputWindow.selectionEnd) {
             inputWindow.setSelectionRange(inputWindow.selectionStart , inputWindow.selectionEnd + 1, "forward");
           } else if (inputWindow.selectionDirection == "forward") {
@@ -563,12 +646,20 @@ document.addEventListener("keydown", (event) => {
   if (event.code == "ShiftLeft" || event.code == "ShiftRight") {
     shiftMode = false;
   }
+  if (event.code == "ContolLeft" || event.code == "ContolRight") {
+    ctrlMode = false;
+  }
 });
 document.addEventListener("keyup", (event) => {
   let button = findFromListByKeyCode(event.code);
   if (button) {
     if (event.code != "CapsLock") {
-      button.classList.remove("active");
+      if (event.code == "ShiftLeft" || event.code == "ShiftRight") {
+        document.querySelector(".ShiftLeft").classList.remove("active");
+        document.querySelector(".ShiftRight").classList.remove("active");
+      } else {
+        button.classList.remove("active");
+      }
     }
   }
 });
