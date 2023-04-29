@@ -1,4 +1,6 @@
-const inputWindow = document.createElement('textarea');
+let inputWindow = document.createElement('textarea');
+// inputWindow.cols = 98;
+inputWindow.wrap = 'off';
 const keyBoardListEN = [
   {
     main: '`', alt: '~', row: 1, code: 'Backquote',
@@ -383,11 +385,11 @@ if (!localStorage.getItem('currentLanguage')) {
 function createButton(buttonObj) {
   const button = document.createElement('div');
   if (buttonObj.width) {
-    if (buttonObj.width == 2) {
+    if (buttonObj.width === 2) {
       button.classList = 'button button2';
-    } else if (buttonObj.width == 1.5) {
+    } else if (buttonObj.width === 1.5) {
       button.classList = 'button button15';
-    } else if (buttonObj.width == 3) {
+    } else if (buttonObj.width === 3) {
       button.classList = 'button button3';
     } else {
       button.classList = 'button button4';
@@ -399,7 +401,7 @@ function createButton(buttonObj) {
   const main = document.createElement('span');
   main.textContent = buttonObj.main;
   main.classList = 'main';
-  if (buttonObj.alt != undefined) {
+  if (buttonObj.alt !== undefined) {
     const sub = document.createElement('span');
     sub.textContent = buttonObj.alt;
     sub.classList = 'sub';
@@ -411,18 +413,18 @@ function createButton(buttonObj) {
 
 const rowsInWrapper = 5;
 
-function fillWrapper(rowsInWrapper, keyboardList) {
+function fillWrapper(rowsInWrapaper, keyboardList) {
   const wrapper = document.createElement('div');
   wrapper.classList = 'wrapper';
-  for (let i = 0; i < rowsInWrapper; i++) {
+  for (let i = 0; i < rowsInWrapaper; i += 1) {
     const row = document.createElement('div');
     row.classList = 'row';
     wrapper.append(row);
   }
 
-  for (const i of keyboardList) {
-    wrapper.children[i.row - 1].append(createButton(i));
-  }
+  keyboardList.forEach((element) => {
+    wrapper.children[element.row - 1].append(createButton(element));
+  });
   return wrapper;
 }
 
@@ -452,7 +454,7 @@ function mouseLeaveHandler(event) {
 }
 
 function mousedownHandler(event) {
-  const inputWindow = document.querySelector('textarea');
+  inputWindow = document.querySelector('textarea');
   const target = event.target.closest('.button');
   if (!inputWindow.focus()) {
     inputWindow.focus();
@@ -465,12 +467,12 @@ function mousedownHandler(event) {
 }
 
 function mouseupHandler(event) {
-  const inputWindow = document.querySelector('textarea');
+  inputWindow = document.querySelector('textarea');
   const target = event.target.closest('.button');
   const prevText = inputWindow.value.slice(0, inputWindow.selectionStart);
   let postText = inputWindow.value.slice(inputWindow.selectionEnd);
   if (target) {
-    if ((target.children[0].textContent == 'Ru')) {
+    if ((target.children[0].textContent === 'Ru')) {
       if (keyBoardLayoutEN) {
         wrapper.remove();
         wrapper = fillWrapper(rowsInWrapper, keyBoardListRU);
@@ -488,7 +490,7 @@ function mouseupHandler(event) {
         keyBoardLayoutEN = !keyBoardLayoutEN;
         setStorage(keyBoardLayoutEN);
       }
-    } else if (target.children.length != 1 || target.children[0].textContent == ' ') { // for letters and spaces
+    } else if (target.children.length !== 1 || target.children[0].textContent === ' ') { // for letters and spaces
       if (!shiftMode) { // if shift key is NOT pressed
         if (!tabMode || !target.classList[1].includes('Key')) {
           if (target.children[1]) { // if shift key is NOT pressed AND tab key is NOT pressed
@@ -499,25 +501,23 @@ function mouseupHandler(event) {
         } else {
           inputWindow.value = prevText + target.children[0].textContent + postText;
         }
-      } else { // if shift key IS pressed
-        if (!tabMode || !target.classList[1].includes('Key')) { // if shift key IS pressed AND tab key is NOT pressed
-          inputWindow.value = prevText + target.children[0].textContent + postText; // for any
-        } else if (target.children[1]) { // if shift key IS pressed AND tab key IS pressed
-          inputWindow.value = prevText + target.children[1].textContent + postText; // for letters
-        } else {
-          inputWindow.value = prevText + target.children[0].textContent + postText; // for spaces
-        }
+      } else if (!tabMode || !target.classList[1].includes('Key')) { // if shift key IS pressed AND tab key is NOT pressed
+        inputWindow.value = prevText + target.children[0].textContent + postText; // for any
+      } else if (target.children[1]) { // if shift key IS pressed AND tab key IS pressed
+        inputWindow.value = prevText + target.children[1].textContent + postText; // for letters
+      } else {
+        inputWindow.value = prevText + target.children[0].textContent + postText; // for spaces
       }
       inputWindow.setSelectionRange(prevText.length + 1, prevText.length + 1);
       target.classList.remove('active');
     } else { // for anything but letters
-      if (target.children[0].textContent == 'Del' || target.children[0].textContent == 'Backspace') {
-        if (inputWindow.selectionEnd == inputWindow.selectionStart) {
-          if (target.children[0].textContent == 'Backspace') {
+      if (target.children[0].textContent === 'Del' || target.children[0].textContent === 'Backspace') {
+        if (inputWindow.selectionEnd === inputWindow.selectionStart) {
+          if (target.children[0].textContent === 'Backspace') {
             inputWindow.value = prevText.slice(0, prevText.length - 1) + postText;
             inputWindow.setSelectionRange(prevText.length - 1, prevText.length - 1);
           }
-          if (target.children[0].textContent == 'Del') {
+          if (target.children[0].textContent === 'Del') {
             inputWindow.value = prevText + postText.slice(1);
             inputWindow.setSelectionRange(prevText.length, prevText.length);
           }
@@ -525,9 +525,9 @@ function mouseupHandler(event) {
           inputWindow.value = prevText + postText;
           inputWindow.setSelectionRange(prevText.length, prevText.length);
         }
-      } else if (target.children[0].textContent == 'Tab') {
+      } else if (target.children[0].textContent === 'Tab') {
         let tabSpace = '';
-        for (let j = 0; j < tabSpaceLength; j++) {
+        for (let j = 0; j < tabSpaceLength; j += 1) {
           tabSpace += ' ';
         }
         inputWindow.value = prevText + tabSpace + postText;
@@ -535,10 +535,10 @@ function mouseupHandler(event) {
           prevText.length + tabSpaceLength,
           prevText.length + tabSpaceLength,
         );
-      } else if (target.children[0].textContent == 'Enter') {
+      } else if (target.children[0].textContent === 'Enter') {
         inputWindow.value = `${prevText}\n${postText}`;
         inputWindow.setSelectionRange(prevText.length + 1, prevText.length + 1);
-      } else if (target.children[0].textContent == 'Shift') {
+      } else if (target.children[0].textContent === 'Shift') {
         const shiftLeft = document.querySelector('.ShiftLeft');
         const shiftRight = document.querySelector('.ShiftRight');
         if (shiftMode) {
@@ -548,7 +548,7 @@ function mouseupHandler(event) {
         shiftMode = !shiftMode;
         target.removeEventListener('mouseleave', mouseLeaveHandler, { once: true });
         return;
-      } else if (target.children[0].textContent == 'Control') {
+      } else if (target.children[0].textContent === 'Control') {
         const controlLeft = document.querySelector('.ControlLeft');
         const controlRight = document.querySelector('.ControlRight');
         if (ctrlMode) {
@@ -558,22 +558,22 @@ function mouseupHandler(event) {
         ctrlMode = !ctrlMode;
         target.removeEventListener('mouseleave', mouseLeaveHandler, { once: true });
         return;
-      } else if (target.children[0].textContent == 'CapsLock') {
+      } else if (target.children[0].textContent === 'CapsLock') {
         if (tabMode) {
           target.classList.remove('active');
         }
         tabMode = !tabMode;
         target.removeEventListener('mouseleave', mouseLeaveHandler, { once: true });
         return;
-      } else if (target.children[0].textContent == '\u{2190}') { // arrow left
+      } else if (target.children[0].textContent === '\u{2190}') { // arrow left
         if (shiftMode) { // arrow left white shift is pressed
-          if (inputWindow.selectionStart == 0) {
+          if (inputWindow.selectionStart === 0) {
             return;
           }
           if (ctrlMode) {
             const prevLineIndex = prevText.lastIndexOf('\n');
-            if (prevLineIndex + 1 == inputWindow.selectionStart) {
-              if (prevLineIndex == -1) {
+            if (prevLineIndex + 1 === inputWindow.selectionStart) {
+              if (prevLineIndex === -1) {
                 inputWindow.setSelectionRange(0, 0);
               } else {
                 inputWindow.setSelectionRange(prevLineIndex, prevLineIndex);
@@ -581,15 +581,31 @@ function mouseupHandler(event) {
               return;
             }
             let prevSpaceIndex;
-            if (inputWindow.value[inputWindow.selectionStart - 1] == ' ' && inputWindow.selectionDirection == 'backward') {
-              prevSpaceIndex = prevText.slice(0, prevText.length - 2).lastIndexOf(' ');
-            } else if (inputWindow.value[inputWindow.selectionStart - 1] == ' ' && inputWindow.selectionEnd == inputWindow.selectionStart) {
-              prevSpaceIndex = prevText.slice(0, prevText.length - 2).lastIndexOf(' ');
+            let enchPrevText;
+            if (inputWindow.selectionDirection === 'forward') {
+              enchPrevText = inputWindow.value.slice(0, inputWindow.selectionEnd);
             } else {
-              prevSpaceIndex = prevText.lastIndexOf(' ');
+              enchPrevText = prevText;
             }
-            if (prevSpaceIndex == -1) {
+            prevSpaceIndex = enchPrevText.slice(0, enchPrevText.length - 1).lastIndexOf(' ');
+            let isPrevSpace = true;
+            let counter = enchPrevText.length - 1;
+            if (prevSpaceIndex === -1) {
               prevSpaceIndex = 0;
+            } else if (enchPrevText[counter] === ' ') {
+              while (isPrevSpace) {
+                if (enchPrevText[counter] === ' ') {
+                  counter -= 1;
+                } else {
+                  isPrevSpace = false;
+                }
+              }
+              prevSpaceIndex = enchPrevText.slice(0, counter).lastIndexOf(' ');
+              if (prevSpaceIndex === -1) {
+                prevSpaceIndex = 0;
+              } else {
+                prevSpaceIndex += 1;
+              }
             } else {
               prevSpaceIndex += 1;
             }
@@ -598,40 +614,58 @@ function mouseupHandler(event) {
               return;
             }
             const toPrevSpace = inputWindow.selectionStart - prevSpaceIndex;
-            if (inputWindow.selectionStart == inputWindow.selectionEnd) {
+            if (inputWindow.selectionStart === inputWindow.selectionEnd) {
               inputWindow.setSelectionRange(inputWindow.selectionStart - toPrevSpace, inputWindow.selectionEnd, 'backward');
-            } else if (inputWindow.selectionDirection == 'forward') {
-              inputWindow.setSelectionRange(inputWindow.selectionStart - toPrevSpace, inputWindow.selectionStart, 'backward');
-            } else if (inputWindow.selectionDirection == 'backward') {
+            } else if (inputWindow.selectionDirection === 'forward') {
+              if (prevSpaceIndex > inputWindow.selectionStart) {
+                inputWindow.setSelectionRange(inputWindow.selectionStart, prevSpaceIndex, 'forward');
+              } else {
+                inputWindow.setSelectionRange(prevSpaceIndex, inputWindow.selectionStart, 'backward');
+              }
+            } else if (inputWindow.selectionDirection === 'backward') {
               inputWindow.setSelectionRange(inputWindow.selectionStart - toPrevSpace, inputWindow.selectionEnd, 'backward');
             }
-          } else if (inputWindow.selectionStart == inputWindow.selectionEnd) {
+          } else if (inputWindow.selectionStart === inputWindow.selectionEnd) {
             inputWindow.setSelectionRange(inputWindow.selectionStart - 1, inputWindow.selectionEnd, 'backward');
-          } else if (inputWindow.selectionDirection == 'forward') {
+          } else if (inputWindow.selectionDirection === 'forward') {
             inputWindow.setSelectionRange(inputWindow.selectionStart, inputWindow.selectionEnd - 1);
-          } else if (inputWindow.selectionDirection == 'backward') {
+          } else if (inputWindow.selectionDirection === 'backward') {
             inputWindow.setSelectionRange(inputWindow.selectionStart - 1, inputWindow.selectionEnd, 'backward');
           }
         } else if (ctrlMode) {
           const prevLineIndex = prevText.lastIndexOf('\n');
-          if (prevLineIndex + 1 == inputWindow.selectionStart) {
-            if (prevLineIndex == -1) {
-              inputWindow.setSelectionRange(0, 0);
-            } else {
-              inputWindow.setSelectionRange(prevLineIndex, prevLineIndex);
-            }
+          if (prevLineIndex + 1 === inputWindow.selectionStart) {
+            inputWindow.setSelectionRange(0, 0);
             return;
           }
           let prevSpaceIndex;
-          if (inputWindow.value[inputWindow.selectionStart - 1] == ' ' && inputWindow.selectionDirection == 'backward') {
-            prevSpaceIndex = prevText.slice(0, prevText.length - 2).lastIndexOf(' ');
-          } else if (inputWindow.value[inputWindow.selectionStart - 1] == ' ' && inputWindow.selectionEnd == inputWindow.selectionStart) {
-            prevSpaceIndex = prevText.slice(0, prevText.length - 2).lastIndexOf(' ');
-          } else {
-            prevSpaceIndex = prevText.lastIndexOf(' ');
+          if (inputWindow.selectionDirection === 'forward' && inputWindow.selectionStart !== inputWindow.selectionEnd) {
+            prevSpaceIndex = (prevText + inputWindow.value.slice(inputWindow.selectionStart, inputWindow.selectionEnd + 1)).lastIndexOf(' ');
+            inputWindow.setSelectionRange(
+              prevSpaceIndex + 1,
+              prevSpaceIndex + 1,
+            );
+            return;
           }
-          if (prevSpaceIndex == -1) {
+          prevSpaceIndex = prevText.slice(0, prevText.length - 1).lastIndexOf(' ');
+          let isPrevSpace = true;
+          let counter = prevText.length - 1;
+          if (prevSpaceIndex === -1) {
             prevSpaceIndex = 0;
+          } else if (prevText[counter] === ' ') {
+            while (isPrevSpace) {
+              if (prevText[counter] === ' ') {
+                counter -= 1;
+              } else {
+                isPrevSpace = false;
+              }
+            }
+            prevSpaceIndex = prevText.slice(0, counter).lastIndexOf(' ');
+            if (prevSpaceIndex === -1) {
+              prevSpaceIndex = 0;
+            } else {
+              prevSpaceIndex += 1;
+            }
           } else {
             prevSpaceIndex += 1;
           }
@@ -644,143 +678,223 @@ function mouseupHandler(event) {
             inputWindow.selectionStart - toPrevSpace,
             inputWindow.selectionStart - toPrevSpace,
           );
-        } else if (inputWindow.selectionEnd == inputWindow.selectionStart) {
+        } else if (inputWindow.selectionEnd === inputWindow.selectionStart) {
           inputWindow.setSelectionRange(inputWindow.selectionEnd - 1, inputWindow.selectionEnd - 1);
         } else {
           inputWindow.setSelectionRange(inputWindow.selectionStart, inputWindow.selectionStart);
         }
-      } else if (target.children[0].textContent == '\u{2192}') { // arrow right
+      } else if (target.children[0].textContent === '\u{2192}') { // arrow right
         if (shiftMode) { // arrow right white shift is pressed
-          if (inputWindow.selectionEnd == inputWindow.value.length) {
+          if (inputWindow.selectionEnd === inputWindow.value.length) {
             return;
           }
-          if (inputWindow.selectionStart == inputWindow.selectionEnd) {
+          if (ctrlMode) {
+            const nextLineIndex = postText.lastIndexOf('\n');
+            if (nextLineIndex === inputWindow.selectionEnd) {
+              inputWindow.setSelectionRange(0, 0);
+              return;
+            }
+            let nextSpaceIndex;
+            if (inputWindow.selectionDirection === 'backward') {
+              nextSpaceIndex = (inputWindow.value.slice(inputWindow.selectionStart, inputWindow.selectionEnd + 1) + postText).indexOf(' ');
+              inputWindow.setSelectionRange(
+                inputWindow.selectionStart + nextSpaceIndex + 1,
+                inputWindow.selectionEnd,
+                'forward',
+              );
+              return;
+            }
+            nextSpaceIndex = postText.slice(0, postText.length - 1).indexOf(' ');
+            let isNextSpace = true;
+            let counter = nextSpaceIndex + 1;
+            if (nextSpaceIndex === -1) {
+              nextSpaceIndex = postText.length;
+            } else if (postText[nextSpaceIndex + 1] === ' ') {
+              while (isNextSpace) {
+                if (postText[counter] === ' ') {
+                  counter += 1;
+                } else {
+                  isNextSpace = false;
+                }
+              }
+              nextSpaceIndex = counter;
+            } else {
+              nextSpaceIndex += 1;
+            }
+            if (nextLineIndex > nextSpaceIndex) {
+              inputWindow.setSelectionRange(nextLineIndex + 1, nextLineIndex + 1);
+              return;
+            }
+            const toNextSpace = nextSpaceIndex;
+            inputWindow.setSelectionRange(
+              inputWindow.selectionStart,
+              inputWindow.selectionEnd + toNextSpace,
+            );
+          } else if (inputWindow.selectionStart === inputWindow.selectionEnd) {
             inputWindow.setSelectionRange(inputWindow.selectionStart, inputWindow.selectionEnd + 1, 'forward');
-          } else if (inputWindow.selectionDirection == 'forward') {
+          } else if (inputWindow.selectionDirection === 'forward') {
             inputWindow.setSelectionRange(inputWindow.selectionStart, inputWindow.selectionEnd + 1);
-          } else if (inputWindow.selectionDirection == 'backward') {
+          } else if (inputWindow.selectionDirection === 'backward') {
             inputWindow.setSelectionRange(inputWindow.selectionStart + 1, inputWindow.selectionEnd, 'backward');
           }
         } else if (ctrlMode) {
           const nextLineIndex = postText.lastIndexOf('\n');
-          if (nextLineIndex == inputWindow.selectionEnd) {
-            if (nextLineIndex == -1) {
-              inputWindow.setSelectionRange(0, 0);
-            } else {
-              inputWindow.setSelectionRange(nextLineIndex, nextLineIndex);
+          if (nextLineIndex === inputWindow.selectionEnd) {
+            inputWindow.setSelectionRange(0, 0);
+            return;
+          }
+          let nextSpaceIndex;
+          if (inputWindow.selectionDirection === 'backward') {
+            nextSpaceIndex = (inputWindow.value.slice(inputWindow.selectionStart, inputWindow.selectionEnd + 1) + postText).indexOf(' ');
+            inputWindow.setSelectionRange(
+              inputWindow.selectionStart + nextSpaceIndex + 1,
+              inputWindow.selectionStart + nextSpaceIndex + 1,
+            );
+            return;
+          }
+          nextSpaceIndex = postText.slice(0, postText.length - 1).indexOf(' ');
+          let isNextSpace = true;
+          let counter = nextSpaceIndex + 1;
+          if (nextSpaceIndex === -1) {
+            nextSpaceIndex = postText.length;
+          } else if (postText[nextSpaceIndex + 1] === ' ') {
+            while (isNextSpace) {
+              if (postText[counter] === ' ') {
+                counter += 1;
+              } else {
+                isNextSpace = false;
+              }
             }
+            nextSpaceIndex = counter;
+          } else {
+            nextSpaceIndex += 1;
+          }
+          if (nextLineIndex > nextSpaceIndex) {
+            inputWindow.setSelectionRange(nextLineIndex + 1, nextLineIndex + 1);
             return;
           }
-          if (inputWindow.value[inputWindow.selectionStart - 1] == ' ' && inputWindow.selectionDirection == 'backward') {
-            var nextSpaceIndex = prevText.slice(0, prevText.length - 2).lastIndexOf(' ');
-          } else if (inputWindow.value[inputWindow.selectionStart - 1] == ' ' && inputWindow.selectionEnd == inputWindow.selectionStart) {
-            var nextSpaceIndex = prevText.slice(0, prevText.length - 2).lastIndexOf(' ');
-          } else {
-            var nextSpaceIndex = prevText.lastIndexOf(' ');
-          }
-          if (nextSpaceIndex == -1) {
-            nextSpaceIndex = 0;
-          } else {
-            nextSpaceIndex++;
-          }
-          if (prevLineIndex > nextSpaceIndex) {
-            inputWindow.setSelectionRange(prevLineIndex + 1, prevLineIndex + 1);
-            return;
-          }
-          const toNextSpace = inputWindow.selectionStart - nextSpaceIndex;
+          const toNextSpace = nextSpaceIndex;
           inputWindow.setSelectionRange(
-            inputWindow.selectionStart + toNextSpace,
-            inputWindow.selectionStart + toNextSpace,
+            inputWindow.selectionEnd + toNextSpace,
+            inputWindow.selectionEnd + toNextSpace,
           );
-        } else if (inputWindow.selectionEnd == inputWindow.selectionStart) {
+        } else if (inputWindow.selectionEnd === inputWindow.selectionStart) {
           inputWindow.setSelectionRange(inputWindow.selectionEnd + 1, inputWindow.selectionEnd + 1);
         } else {
           inputWindow.setSelectionRange(inputWindow.selectionEnd, inputWindow.selectionEnd);
         }
-      } else if (target.children[0].textContent == '\u{2193}') { // arrow down
+      } else if (target.children[0].textContent === '\u{2193}') { // arrow down
         if (shiftMode) { // arrow down white shift IS pressed
-          if (inputWindow.selectionEnd == inputWindow.selectionStart) {
+          if (inputWindow.selectionEnd === inputWindow.selectionStart) {
             let toNextLine = postText.indexOf('\n');
             const toPrevLine = prevText.length - 1 - prevText.lastIndexOf('\n');
             let toNextNextLine = postText.slice(toNextLine + 1).indexOf('\n');
-            if (toNextLine == -1) {
+            if (toNextLine === -1) {
               toNextLine = inputWindow.value.length - inputWindow.selectionEnd;
             }
-            if (toNextNextLine == -1) {
+            if (toNextNextLine === -1) {
               toNextNextLine = inputWindow.value.length - prevText.length - toNextLine;
             }
             if (toPrevLine > toNextNextLine) {
-              inputWindow.setSelectionRange(inputWindow.selectionStart, prevText.length + toNextLine + toNextNextLine);
+              inputWindow.setSelectionRange(
+                inputWindow.selectionStart,
+                prevText.length + toNextLine + toNextNextLine,
+              );
               postText = inputWindow.value.slice(inputWindow.selectionEnd);
             } else {
-              inputWindow.setSelectionRange(inputWindow.selectionStart, prevText.length + toNextLine + toPrevLine + 1);
+              inputWindow.setSelectionRange(
+                inputWindow.selectionStart,
+                prevText.length + toNextLine + toPrevLine + 1,
+              );
               postText = inputWindow.value.slice(inputWindow.selectionEnd);
             }
           } else {
             let toNextLine = postText.indexOf('\n');
             const toPrevLine = prevText.length - 1 - prevText.lastIndexOf('\n');
             let toNextNextLine = postText.slice(toNextLine + 1).indexOf('\n');
-            if (toNextLine == -1) {
+            if (toNextLine === -1) {
               toNextLine = inputWindow.value.length - inputWindow.selectionEnd;
             }
-            if (toNextNextLine == -1) {
+            if (toNextNextLine === -1) {
               toNextNextLine = inputWindow.value.length - inputWindow.selectionEnd - toNextLine - 1;
             }
-            if (inputWindow.selectionDirection == 'backward') {
+            if (inputWindow.selectionDirection === 'backward') {
               if (toPrevLine >= toNextNextLine) {
-                inputWindow.setSelectionRange(inputWindow.selectionEnd, inputWindow.selectionEnd + toNextLine + toNextNextLine + 1);
+                inputWindow.setSelectionRange(
+                  inputWindow.selectionEnd,
+                  inputWindow.selectionEnd + toNextLine + toNextNextLine + 1,
+                );
               } else {
-                inputWindow.setSelectionRange(inputWindow.selectionEnd, inputWindow.selectionEnd + toNextLine + toPrevLine + 1);
+                inputWindow.setSelectionRange(
+                  inputWindow.selectionEnd,
+                  inputWindow.selectionEnd + toNextLine + toPrevLine + 1,
+                );
               }
             } else if (toPrevLine >= toNextNextLine) {
-              inputWindow.setSelectionRange(inputWindow.selectionStart, inputWindow.selectionEnd + toNextLine + toNextNextLine + 1);
+              inputWindow.setSelectionRange(
+                inputWindow.selectionStart,
+                inputWindow.selectionEnd + toNextLine + toNextNextLine + 1,
+              );
             } else {
-              inputWindow.setSelectionRange(inputWindow.selectionStart, inputWindow.selectionEnd + toNextLine + toPrevLine + 1);
+              inputWindow.setSelectionRange(
+                inputWindow.selectionStart,
+                inputWindow.selectionEnd + toNextLine + toPrevLine + 1,
+              );
             }
           }
-        } else { // arrow down white shift is NOT pressed
-          if (inputWindow.selectionEnd == inputWindow.selectionStart) {
-            let toNextLine = postText.indexOf('\n');
-            const toPrevLine = prevText.length - 1 - prevText.lastIndexOf('\n');
-            let toNextNextLine = postText.slice(toNextLine + 1).indexOf('\n');
-            if (toNextLine == -1) {
-              toNextLine = inputWindow.value.length - inputWindow.selectionEnd;
-            }
-            if (toNextNextLine == -1) {
-              toNextNextLine = inputWindow.value.length - prevText.length - toNextLine;
-            }
-            if (toPrevLine > toNextNextLine) {
-              inputWindow.setSelectionRange(prevText.length + toNextLine + toNextNextLine, prevText.length + toNextLine + toNextNextLine);
-            } else {
-              inputWindow.setSelectionRange(prevText.length + toNextLine + toPrevLine + 1, prevText.length + toNextLine + toPrevLine + 1);
-            }
+        } else if (inputWindow.selectionEnd === inputWindow.selectionStart) {
+          let toNextLine = postText.indexOf('\n');
+          const toPrevLine = prevText.length - 1 - prevText.lastIndexOf('\n');
+          let toNextNextLine = postText.slice(toNextLine + 1).indexOf('\n');
+          if (toNextLine === -1) {
+            toNextLine = inputWindow.value.length - inputWindow.selectionEnd;
+          }
+          if (toNextNextLine === -1) {
+            toNextNextLine = inputWindow.value.length - prevText.length - toNextLine;
+          }
+          if (toPrevLine > toNextNextLine) {
+            inputWindow.setSelectionRange(
+              prevText.length + toNextLine + toNextNextLine,
+              prevText.length + toNextLine + toNextNextLine,
+            );
           } else {
-            const toNextLine = postText.indexOf('\n');
-            const toPrevLine = prevText.length - 1 - prevText.lastIndexOf('\n');
-            let toNextNextLine = postText.slice(toNextLine + 1).indexOf('\n');
+            inputWindow.setSelectionRange(
+              prevText.length + toNextLine + toPrevLine + 1,
+              prevText.length + toNextLine + toPrevLine + 1,
+            );
+          }
+        } else {
+          const toNextLine = postText.indexOf('\n');
+          const toPrevLine = prevText.length - 1 - prevText.lastIndexOf('\n');
+          let toNextNextLine = postText.slice(toNextLine + 1).indexOf('\n');
 
-            if (toNextNextLine == -1) {
-              toNextNextLine = inputWindow.value.length - inputWindow.selectionEnd - toNextLine - 1;
-            }
-            if (toPrevLine >= toNextNextLine) {
-              inputWindow.setSelectionRange(inputWindow.selectionEnd + toNextLine + toNextNextLine + 1, inputWindow.selectionEnd + toNextLine + toNextNextLine + 1);
-            } else {
-              inputWindow.setSelectionRange(inputWindow.selectionEnd + toNextLine + toPrevLine + 1, inputWindow.selectionEnd + toNextLine + toPrevLine + 1);
-            }
+          if (toNextNextLine === -1) {
+            toNextNextLine = inputWindow.value.length - inputWindow.selectionEnd - toNextLine - 1;
+          }
+          if (toPrevLine >= toNextNextLine) {
+            inputWindow.setSelectionRange(
+              inputWindow.selectionEnd + toNextLine + toNextNextLine + 1,
+              inputWindow.selectionEnd + toNextLine + toNextNextLine + 1,
+            );
+          } else {
+            inputWindow.setSelectionRange(
+              inputWindow.selectionEnd + toNextLine + toPrevLine + 1,
+              inputWindow.selectionEnd + toNextLine + toPrevLine + 1,
+            );
           }
         }
-      } else if (target.children[0].textContent == '\u{2191}') { // arrow up
+      } else if (target.children[0].textContent === '\u{2191}') { // arrow up
         if (shiftMode) { // arrow down white shift IS pressed
           let toNextLine = postText.indexOf('\n');
           const toPrevLine = prevText.length - 1 - prevText.lastIndexOf('\n');
           const toPrevPrevLine = prevText.slice(0, prevText.length - 1 - toPrevLine).lastIndexOf('\n');
-          if (toNextLine == -1) {
+          if (toNextLine === -1) {
             toNextLine = inputWindow.value.length - inputWindow.selectionEnd;
           }
-          if (inputWindow.selectionDirection == 'forward') {
-            if (prevText.lastIndexOf('\n') == -1) {
+          if (inputWindow.selectionDirection === 'forward') {
+            if (prevText.lastIndexOf('\n') === -1) {
               inputWindow.setSelectionRange(0, inputWindow.selectionStart);
-            } else if (toPrevPrevLine == -1) {
+            } else if (toPrevPrevLine === -1) {
               if (toPrevLine < inputWindow.selectionStart - toPrevLine) {
                 inputWindow.setSelectionRange(toPrevLine, inputWindow.selectionStart);
               } else {
@@ -791,9 +905,9 @@ function mouseupHandler(event) {
             } else {
               inputWindow.setSelectionRange(prevText.lastIndexOf('\n'), inputWindow.selectionStart);
             }
-          } else if (prevText.lastIndexOf('\n') == -1) {
+          } else if (prevText.lastIndexOf('\n') === -1) {
             inputWindow.setSelectionRange(0, inputWindow.selectionEnd);
-          } else if (toPrevPrevLine == -1) {
+          } else if (toPrevPrevLine === -1) {
             if (toPrevLine < inputWindow.selectionStart - toPrevLine) {
               inputWindow.setSelectionRange(toPrevLine, inputWindow.selectionEnd);
             } else {
@@ -808,12 +922,12 @@ function mouseupHandler(event) {
           let toNextLine = postText.indexOf('\n');
           const toPrevLine = prevText.length - 1 - prevText.lastIndexOf('\n');
           const toPrevPrevLine = prevText.slice(0, prevText.length - 1 - toPrevLine).lastIndexOf('\n');
-          if (toNextLine == -1) {
+          if (toNextLine === -1) {
             toNextLine = inputWindow.value.length - inputWindow.selectionEnd;
           }
-          if (prevText.lastIndexOf('\n') == -1) {
+          if (prevText.lastIndexOf('\n') === -1) {
             inputWindow.setSelectionRange(0, 0);
-          } else if (toPrevPrevLine == -1) {
+          } else if (toPrevPrevLine === -1) {
             if (toPrevLine < inputWindow.selectionStart - toPrevLine) {
               inputWindow.setSelectionRange(toPrevLine, toPrevLine);
             } else {
@@ -840,7 +954,7 @@ function findFromListByKeyCode(keyCode) {
   return item ? document.querySelector(`.${item.code}`) : null;
 }
 document.addEventListener('keydown', (event) => {
-  if (event.code == 'AltLeft' && event.shiftKey) {
+  if (event.code === 'AltLeft' && event.shiftKey) {
     if (keyBoardLayoutEN) {
       wrapper.remove();
       wrapper = fillWrapper(rowsInWrapper, keyBoardListRU);
@@ -863,7 +977,7 @@ document.addEventListener('keydown', (event) => {
   if (button) {
     button.classList.add('active');
   }
-  if (event.code == 'CapsLock') {
+  if (event.code === 'CapsLock') {
     const target = document.querySelector('.CapsLock');
     if (tabMode) {
       target.classList.remove('active');
@@ -871,18 +985,18 @@ document.addEventListener('keydown', (event) => {
     tabMode = !tabMode;
     return;
   }
-  if (event.code == 'ShiftLeft' || event.code == 'ShiftRight') {
+  if (event.code === 'ShiftLeft' || event.code === 'ShiftRight') {
     shiftMode = false;
   }
-  if (event.code == 'ContolLeft' || event.code == 'ContolRight') {
+  if (event.code === 'ContolLeft' || event.code === 'ContolRight') {
     ctrlMode = false;
   }
 });
 document.addEventListener('keyup', (event) => {
   const button = findFromListByKeyCode(event.code);
   if (button) {
-    if (event.code != 'CapsLock') {
-      if (event.code == 'ShiftLeft' || event.code == 'ShiftRight') {
+    if (event.code !== 'CapsLock') {
+      if (event.code === 'ShiftLeft' || event.code === 'ShiftRight') {
         document.querySelector('.ShiftLeft').classList.remove('active');
         document.querySelector('.ShiftRight').classList.remove('active');
       } else {
