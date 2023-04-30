@@ -356,9 +356,11 @@ const keyBoardListRU = [
   { main: '\u{2192}', row: 5, code: 'ArrowRight' },
 ];
 const tabSpaceLength = 4;
-let shiftMode = false;
-let tabMode = false;
-let ctrlMode = false;
+const state = {
+  shiftMode: false,
+  tabMode: false,
+  ctrlMode: false,
+};
 let keyBoardLayoutEN = true; // English by default
 
 function setStorage(isEnglish) {
@@ -472,6 +474,9 @@ function mouseupHandler(event) {
         wrapper.addEventListener('mousedown', mousedownHandler);
         wrapper.addEventListener('mouseup', mouseupHandler);
         keyBoardLayoutEN = !keyBoardLayoutEN;
+        state.ctrlMode = false;
+        state.tabMode = false;
+        state.shiftMode = false;
         setStorage(keyBoardLayoutEN);
       } else {
         wrapper.remove();
@@ -480,11 +485,14 @@ function mouseupHandler(event) {
         wrapper.addEventListener('mousedown', mousedownHandler);
         wrapper.addEventListener('mouseup', mouseupHandler);
         keyBoardLayoutEN = !keyBoardLayoutEN;
+        state.ctrlMode = false;
+        state.tabMode = false;
+        state.shiftMode = false;
         setStorage(keyBoardLayoutEN);
       }
-    } else if ((target.children.length !== 1 || target.children[0].textContent === ' ') && !ctrlMode) { // for letters and spaces
-      if (!shiftMode) { // if shift key is NOT pressed
-        if (!tabMode || !target.classList[1].includes('Key')) {
+    } else if ((target.children.length !== 1 || target.children[0].textContent === ' ') && !state.ctrlMode) { // for letters and spaces
+      if (!state.shiftMode) { // if shift key is NOT pressed
+        if (!state.tabMode || !target.classList[1].includes('Key')) {
           if (target.children[1]) { // if shift key is NOT pressed AND tab key is NOT pressed
             inputWindow.value = prevText + target.children[1].textContent + postText; // for letters
           } else {
@@ -493,7 +501,7 @@ function mouseupHandler(event) {
         } else {
           inputWindow.value = prevText + target.children[0].textContent + postText;
         }
-      } else if (!tabMode || !target.classList[1].includes('Key')) { // if shift key IS pressed AND tab key is NOT pressed
+      } else if (!state.tabMode || !target.classList[1].includes('Key')) { // if shift key IS pressed AND tab key is NOT pressed
         inputWindow.value = prevText + target.children[0].textContent + postText; // for any
       } else if (target.children[1]) { // if shift key IS pressed AND tab key IS pressed
         inputWindow.value = prevText + target.children[1].textContent + postText; // for letters
@@ -533,36 +541,36 @@ function mouseupHandler(event) {
       } else if (target.children[0].textContent === 'Shift') {
         const shiftLeft = document.querySelector('.ShiftLeft');
         const shiftRight = document.querySelector('.ShiftRight');
-        if (shiftMode) {
+        if (state.shiftMode) {
           shiftLeft.classList.remove('active');
           shiftRight.classList.remove('active');
         }
-        shiftMode = !shiftMode;
+        state.shiftMode = !state.shiftMode;
         target.removeEventListener('mouseleave', mouseLeaveHandler, { once: true });
         return;
       } else if (target.children[0].textContent === 'Control') {
         const controlLeft = document.querySelector('.ControlLeft');
         const controlRight = document.querySelector('.ControlRight');
-        if (ctrlMode) {
+        if (state.ctrlMode) {
           controlLeft.classList.remove('active');
           controlRight.classList.remove('active');
         }
-        ctrlMode = !ctrlMode;
+        state.ctrlMode = !state.ctrlMode;
         target.removeEventListener('mouseleave', mouseLeaveHandler, { once: true });
         return;
       } else if (target.children[0].textContent === 'CapsLock') {
-        if (tabMode) {
+        if (state.tabMode) {
           target.classList.remove('active');
         }
-        tabMode = !tabMode;
+        state.tabMode = !state.tabMode;
         target.removeEventListener('mouseleave', mouseLeaveHandler, { once: true });
         return;
       } else if (target.children[0].textContent === '\u{2190}') { // arrow left
-        if (shiftMode) { // arrow left white shift is pressed
+        if (state.shiftMode) { // arrow left white shift is pressed
           if (inputWindow.selectionStart === 0) {
             return;
           }
-          if (ctrlMode) {
+          if (state.ctrlMode) {
             const prevLineIndex = prevText.lastIndexOf('\n');
             if (prevLineIndex + 1 === inputWindow.selectionStart) {
               if (prevLineIndex === -1) {
@@ -624,7 +632,7 @@ function mouseupHandler(event) {
           } else if (inputWindow.selectionDirection === 'backward') {
             inputWindow.setSelectionRange(inputWindow.selectionStart - 1, inputWindow.selectionEnd, 'backward');
           }
-        } else if (ctrlMode) {
+        } else if (state.ctrlMode) {
           const prevLineIndex = prevText.lastIndexOf('\n');
           if (prevLineIndex + 1 === inputWindow.selectionStart) {
             inputWindow.setSelectionRange(0, 0);
@@ -676,11 +684,11 @@ function mouseupHandler(event) {
           inputWindow.setSelectionRange(inputWindow.selectionStart, inputWindow.selectionStart);
         }
       } else if (target.children[0].textContent === '\u{2192}') { // arrow right
-        if (shiftMode) { // arrow right white shift is pressed
+        if (state.shiftMode) { // arrow right white shift is pressed
           if (inputWindow.selectionEnd === inputWindow.value.length) {
             return;
           }
-          if (ctrlMode) {
+          if (state.ctrlMode) {
             const nextLineIndex = postText.lastIndexOf('\n');
             if (nextLineIndex === inputWindow.selectionEnd) {
               inputWindow.setSelectionRange(0, 0);
@@ -729,7 +737,7 @@ function mouseupHandler(event) {
           } else if (inputWindow.selectionDirection === 'backward') {
             inputWindow.setSelectionRange(inputWindow.selectionStart + 1, inputWindow.selectionEnd, 'backward');
           }
-        } else if (ctrlMode) {
+        } else if (state.ctrlMode) {
           const nextLineIndex = postText.lastIndexOf('\n');
           if (nextLineIndex === inputWindow.selectionEnd) {
             inputWindow.setSelectionRange(0, 0);
@@ -776,7 +784,7 @@ function mouseupHandler(event) {
           inputWindow.setSelectionRange(inputWindow.selectionEnd, inputWindow.selectionEnd);
         }
       } else if (target.children[0].textContent === '\u{2193}') { // arrow down
-        if (shiftMode) { // arrow down white shift IS pressed
+        if (state.shiftMode) { // arrow down white shift IS pressed
           if (inputWindow.selectionEnd === inputWindow.selectionStart) {
             let toNextLine = postText.indexOf('\n');
             const toPrevLine = prevText.length - 1 - prevText.lastIndexOf('\n');
@@ -876,7 +884,7 @@ function mouseupHandler(event) {
           }
         }
       } else if (target.children[0].textContent === '\u{2191}') { // arrow up
-        if (shiftMode) { // arrow down white shift IS pressed
+        if (state.shiftMode) { // arrow down white shift IS pressed
           let toNextLine = postText.indexOf('\n');
           const toPrevLine = prevText.length - 1 - prevText.lastIndexOf('\n');
           const toPrevPrevLine = prevText.slice(0, prevText.length - 1 - toPrevLine).lastIndexOf('\n');
@@ -931,11 +939,11 @@ function mouseupHandler(event) {
             inputWindow.setSelectionRange(prevText.lastIndexOf('\n'), prevText.lastIndexOf('\n'));
           }
         }
-      } else if (ctrlMode && target.classList.contains('KeyC')) {
+      } else if (state.ctrlMode && target.classList.contains('KeyC')) {
         navigator.clipboard.writeText(
           inputWindow.value.slice(inputWindow.selectionStart, inputWindow.selectionEnd),
         ).then(() => {});
-      } else if (ctrlMode && target.classList.contains('KeyV')) {
+      } else if (state.ctrlMode && target.classList.contains('KeyV')) {
         navigator.clipboard.readText().then(
           (clipText) => {
             inputWindow.value = prevText + clipText + postText;
@@ -945,7 +953,7 @@ function mouseupHandler(event) {
             );
           },
         );
-      } else if (ctrlMode && target.classList.contains('KeyA')) {
+      } else if (state.ctrlMode && target.classList.contains('KeyA')) {
         inputWindow.setSelectionRange(0, inputWindow.value.length);
       }
       target.classList.remove('active');
@@ -970,6 +978,9 @@ document.addEventListener('keydown', (event) => {
       wrapper.addEventListener('mousedown', mousedownHandler);
       wrapper.addEventListener('mouseup', mouseupHandler);
       keyBoardLayoutEN = !keyBoardLayoutEN;
+      state.ctrlMode = false;
+      state.tabMode = false;
+      state.shiftMode = false;
       setStorage(keyBoardLayoutEN);
     } else {
       wrapper.remove();
@@ -978,6 +989,9 @@ document.addEventListener('keydown', (event) => {
       wrapper.addEventListener('mousedown', mousedownHandler);
       wrapper.addEventListener('mouseup', mouseupHandler);
       keyBoardLayoutEN = !keyBoardLayoutEN;
+      state.ctrlMode = false;
+      state.tabMode = false;
+      state.shiftMode = false;
       setStorage(keyBoardLayoutEN);
     }
   }
@@ -987,17 +1001,17 @@ document.addEventListener('keydown', (event) => {
   }
   if (event.code === 'CapsLock') {
     const target = document.querySelector('.CapsLock');
-    if (tabMode) {
+    if (state.tabMode) {
       target.classList.remove('active');
     }
-    tabMode = !tabMode;
+    state.tabMode = !state.tabMode;
     return;
   }
   if (event.code === 'ShiftLeft' || event.code === 'ShiftRight') {
-    shiftMode = false;
+    state.shiftMode = false;
   }
   if (event.code === 'ControlLeft' || event.code === 'ControlRight') {
-    ctrlMode = false;
+    state.ctrlMode = false;
   }
 });
 document.addEventListener('keyup', (event) => {
