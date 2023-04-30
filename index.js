@@ -1,5 +1,4 @@
 let inputWindow = document.createElement('textarea');
-// inputWindow.cols = 98;
 inputWindow.wrap = 'off';
 const keyBoardListEN = [
   {
@@ -430,13 +429,6 @@ function fillWrapper(rowsInWrapaper, keyboardList) {
 
 let wrapper = fillWrapper(rowsInWrapper, keyBoardLayoutEN ? keyBoardListEN : keyBoardListRU);
 
-/* if (keyBoardLayout_EN) {
-  var wrapper = fillWrapeper(rowsInWrapper, keyboardList_EN);
-} else {
-  console.log(321);
-  var wrapper = fillWrapeper(rowsInWrapper, keyboardList_RU);
-} */
-
 document.body.append(inputWindow);
 inputWindow.focus();
 document.body.append(wrapper);
@@ -490,7 +482,7 @@ function mouseupHandler(event) {
         keyBoardLayoutEN = !keyBoardLayoutEN;
         setStorage(keyBoardLayoutEN);
       }
-    } else if (target.children.length !== 1 || target.children[0].textContent === ' ') { // for letters and spaces
+    } else if ((target.children.length !== 1 || target.children[0].textContent === ' ') && !ctrlMode) { // for letters and spaces
       if (!shiftMode) { // if shift key is NOT pressed
         if (!tabMode || !target.classList[1].includes('Key')) {
           if (target.children[1]) { // if shift key is NOT pressed AND tab key is NOT pressed
@@ -939,6 +931,22 @@ function mouseupHandler(event) {
             inputWindow.setSelectionRange(prevText.lastIndexOf('\n'), prevText.lastIndexOf('\n'));
           }
         }
+      } else if (ctrlMode && target.classList.contains('KeyC')) {
+        navigator.clipboard.writeText(
+          inputWindow.value.slice(inputWindow.selectionStart, inputWindow.selectionEnd),
+        ).then(() => {});
+      } else if (ctrlMode && target.classList.contains('KeyV')) {
+        navigator.clipboard.readText().then(
+          (clipText) => {
+            inputWindow.value = prevText + clipText + postText;
+            inputWindow.setSelectionRange(
+              (prevText + clipText).length,
+              (prevText + clipText).length,
+            );
+          },
+        );
+      } else if (ctrlMode && target.classList.contains('KeyA')) {
+        inputWindow.setSelectionRange(0, inputWindow.value.length);
       }
       target.classList.remove('active');
     }
@@ -988,7 +996,7 @@ document.addEventListener('keydown', (event) => {
   if (event.code === 'ShiftLeft' || event.code === 'ShiftRight') {
     shiftMode = false;
   }
-  if (event.code === 'ContolLeft' || event.code === 'ContolRight') {
+  if (event.code === 'ControlLeft' || event.code === 'ControlRight') {
     ctrlMode = false;
   }
 });
@@ -999,6 +1007,9 @@ document.addEventListener('keyup', (event) => {
       if (event.code === 'ShiftLeft' || event.code === 'ShiftRight') {
         document.querySelector('.ShiftLeft').classList.remove('active');
         document.querySelector('.ShiftRight').classList.remove('active');
+      } else if (event.code === 'ControlLeft' || event.code === 'ControlRight') {
+        document.querySelector('.ControlLeft').classList.remove('active');
+        document.querySelector('.ControlRight').classList.remove('active');
       } else {
         button.classList.remove('active');
       }
