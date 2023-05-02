@@ -1,0 +1,35 @@
+{
+  "name": "virtual-keyboard",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx eslint .",
+    "test:format" :"npx eslint --fix ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MikheytsevNA/virtual-keyboard.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MikheytsevNA/virtual-keyboard/issues"
+  },
+  "homepage": "https://github.com/MikheytsevNA/virtual-keyboard#readme",
+  "devDependencies": {
+    "eslint": "^8.39.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.27.5"
+  },
+  "eslintConfig": {
+    "env": {
+      "browser": true,
+      "es2021": true
+    },
+    "extends": "airbnb-base",
+    "parserOptions": {
+      "ecmaVersion": "latest"
+    }
+  }
+}
