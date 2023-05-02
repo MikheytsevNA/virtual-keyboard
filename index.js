@@ -479,7 +479,9 @@ function mouseupHandler(event) {
         wrapper.addEventListener('mousedown', mousedownHandler);
         wrapper.addEventListener('mouseup', mouseupHandler);
         keyBoardLayoutEN = !keyBoardLayoutEN;
-        state.reset();
+        state.shiftMode = false;
+        state.tabMode = false;
+        state.ctrlMode = false;
         setStorage(keyBoardLayoutEN);
       } else {
         wrapper.remove();
@@ -488,7 +490,9 @@ function mouseupHandler(event) {
         wrapper.addEventListener('mousedown', mousedownHandler);
         wrapper.addEventListener('mouseup', mouseupHandler);
         keyBoardLayoutEN = !keyBoardLayoutEN;
-        state.reset();
+        state.shiftMode = false;
+        state.tabMode = false;
+        state.ctrlMode = false;
         setStorage(keyBoardLayoutEN);
       }
     } else if ((target.children.length !== 1 || target.children[0].textContent === ' ') && !state.ctrlMode) { // for letters and spaces
@@ -1020,7 +1024,9 @@ document.addEventListener('keydown', (event) => {
       wrapper.addEventListener('mousedown', mousedownHandler);
       wrapper.addEventListener('mouseup', mouseupHandler);
       keyBoardLayoutEN = !keyBoardLayoutEN;
-      state.reset();
+      state.shiftMode = false;
+      state.tabMode = false;
+      state.ctrlMode = false;
       setStorage(keyBoardLayoutEN);
     } else {
       wrapper.remove();
@@ -1029,7 +1035,9 @@ document.addEventListener('keydown', (event) => {
       wrapper.addEventListener('mousedown', mousedownHandler);
       wrapper.addEventListener('mouseup', mouseupHandler);
       keyBoardLayoutEN = !keyBoardLayoutEN;
-      state.reset();
+      state.shiftMode = false;
+      state.tabMode = false;
+      state.ctrlMode = false;
       setStorage(keyBoardLayoutEN);
     }
   }
